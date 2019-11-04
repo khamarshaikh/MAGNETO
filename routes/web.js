@@ -1,8 +1,60 @@
-const express = require('express');
-const router = express.Router();
+const express 	  = require('express');
+const router 	  = express.Router();
+const mongoose    = require('mongoose');
+
+var Login         = require('../server/models/login').login;
 
 router.get('/', (req, res) => {
+	res.render('login.hbs', {
+		morris: true
+	});
+});
+
+router.post('/login', function(req, res) {
+    var email    = req.body.email;
+    var pass = req.body.pass;
+    console.log(email);
+	console.log(pass);
 	res.render('index.hbs', {
+		morris: true
+	});
+    // Login.findOne({email: email}, function(err, result) {
+    //   console.log(result);
+    //   if(err){
+    //     console.log("err");
+    //     res.send({success: false, reason: "Login Failed" , type:null});
+    //   }
+    //   else if(result == null || !result) {
+    //     res.send({success: false, reason: "Invalid email-id" ,type:null});
+    //   }
+    //   else if(result.password == pass){
+    //     res.send({success: true, reason: "Login Successful" , type:result.type , username :result.email});
+    //   }
+    //   else{
+    //     res.send({success: false, reason: "Invalid email-id or password" ,type:null});
+    //   }
+    // });
+ })
+
+
+router.get('/home', (req, res) => {
+	
+	var data = {
+	}
+
+	res.render('index.hbs', {
+		"menuItems":[  
+			{  
+			   "subMenuName":"Payments",
+			   "shortCode":"PAY",
+			   "key":"primaryKey"
+			},
+			{  
+				"subMenuName":"Payments2",
+				"shortCode":"PAY",
+				"key":"primaryKey"
+			 }
+		 ],
 		morris: true
 	});
 });
