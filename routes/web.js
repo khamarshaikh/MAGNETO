@@ -63,37 +63,44 @@ router.post('/signup',function(req,res){
 	});
 	});
 
-  router.post('/login', function(req, res) {
-    var email    = req.body.email;
-	var pass = req.body.password;
+	router.post('/login', function(req, res) {
+		var email    = req.body.email;
+		var pass = req.body.password;
+		
 	
-
-    Login.findOne({email: email}, function(err, result) {
-      if(err){
-        console.log("err");
-		res.render('login.hbs',{
-			"failure_message": "Login Failed"
-		})
-      }
-      else if(result == null || !result) {
-		res.render('login.hbs',{
-			"failure_message": "Wrong User ID/ Password"
-		})
-      }
-      else if(result.password == pass){
-		// req.flash('username',email);
-		req.session.email = email;
-		res.redirect('/home')	
-	}
-	
-      else{
-		res.render('login.hbs',{
-			"failure_message": "Wrong User ID/ Password"
-		})
-      }
-	});
-	
- })
+		Login.findOne({email: email}, function(err, result) {
+		  if(err){
+			console.log("err");
+			res.render('login.hbs',{
+				"failure_message": "Login Failed"
+			})
+		  }
+		  else if(result == null || !result) {
+			res.render('login.hbs',{
+				"failure_message": "Wrong User ID/ Password"
+			})
+		  }
+		  else if(result.password == pass){
+			// req.flash('username',email);
+			req.session.email = email;
+			if(result.type === "admin")
+			{
+				res.redirect('/home')
+			}
+			else
+			{
+				res.redirect('/userhome')
+			}	
+		}
+		
+		  else{
+			res.render('login.hbs',{
+				"failure_message": "Wrong User ID/ Password"
+			})
+		  }
+		});
+		
+	 })
 
 
  router.get('/home', (req, res) => {
@@ -154,65 +161,6 @@ router.get('/edgenodes',function(req,res){
 	}
 })
 
-router.get('/flot', (req, res) => {
-	res.render('flot.hbs', {
-		flot: true
-	});
-});
-
-router.get('/morris', (req, res) => {
-	res.render('morris.hbs', {
-		morris: true
-	});
-});
-
-router.get('/tables', (req, res) => {
-	res.render('tables.hbs', {
-		tables: true
-	});
-});
-
-router.get('/forms', (req, res) => {
-	res.render('forms.hbs', {
-		morris: true
-	});
-});
-
-router.get('/panels-wells', (req, res) => {
-	res.render('forms.hbs', {
-		morris: true
-	});
-});
-
-router.get('/buttons', (req, res) => {
-	res.render('buttons.hbs', {
-		morris: true
-	});
-});
-
-router.get('/notifications', (req, res) => {
-	res.render('notifications.hbs', {
-		morris: true
-	});
-});
-
-router.get('/typography', (req, res) => {
-	res.render('typography.hbs', {
-		morris: true
-	});
-});
-
-router.get('/icons', (req, res) => {
-	res.render('icons.hbs', {
-		morris: true
-	});
-});
-
-router.get('/grid', (req, res) => {
-	res.render('grid.hbs', {
-		morris: true
-	});
-});
 
 router.get('/blank', (req, res) => {
 	res.render('blank.hbs', {
@@ -225,6 +173,36 @@ router.get('/install', (req, res) => {
 		flot: true
 	});
 });
+
+router.get('/userhome', (req, res) => {
+
+	if(!req.session.email)
+	{
+		return res.redirect('/login');
+	}
+	else
+	{
+	res.render('userhome.hbs', {
+		 "username":req.session.email.split("@")[0],
+		  morris: true,
+		  flot:true
+	});
+	}
+ })
+
+ router.get('/userarchieve',(req,res) => {
+	if(!req.session.email)
+	{
+		return res.redirect('/login');
+	}
+	else
+	{
+		res.render('userarchieve.hbs',{
+			"morris":true
+			//send data here for past jobs
+		})
+	}
+ })
 
 router.get('/getsshfile', (req, res) => {
 	res.sendFile(__dirname + '/createuser.sh', (err) => {
