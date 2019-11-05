@@ -15,114 +15,152 @@ router.get('/', (req, res) => {
 	});
 });
 
-router.post('/login', function(req, res) {
-    var email    = req.body.email;
-    var pass = req.body.pass;
-    console.log(email);
-	console.log(pass);
-	res.render('index.hbs', {
+router.get('/signup', (req, res) => {
+	res.render('signup.hbs', {
 		morris: true
 	});
-    // Login.findOne({email: email}, function(err, result) {
-    //   console.log(result);
-    //   if(err){
-    //     console.log("err");
-    //     res.send({success: false, reason: "Login Failed" , type:null});
-    //   }
-    //   else if(result == null || !result) {
-    //     res.send({success: false, reason: "Invalid email-id" ,type:null});
-    //   }
-    //   else if(result.password == pass){
-    //     res.send({success: true, reason: "Login Successful" , type:result.type , username :result.email});
-    //   }
-    //   else{
-    //     res.send({success: false, reason: "Invalid email-id or password" ,type:null});
-    //   }
-    // });
- })
+});
 
 
-router.get('/home', (req, res) => {
+router.post('/signup',function(req,res){
+
+	var email = req.body.email;
+	var pass  = req.body.password;
+	Login.findOne({email:email},function(err,result){
+	  console.log(result);
+	  if(err){
+		res.render('signup.hbs',{
+			"message": "Signup Failed"
+		})
+	  }
+	  else
+	  {
+		var signup = {
+		  email:email,
+		  password:pass,
+		  type:"user"
+		}
+		signup = new Login(signup);
+		signup.save(function(err,data){
+		  if(err) {
+			console.log(err);
+			res.render('signup.hbs',{
+				"message": "UserID already exists"
+			})
+		  }
+		  else{
+			console.log("Signup Successful");
+			res.redirect('/install')
+		  }
+		})
+	  }
+	})
+  })
+
+  router.get('/login', (req, res) => {
+	res.render('login.hbs', {
+		morris: true
+	});
+	});
+
+	router.post('/login', function(req, res) {
+		var email    = req.body.email;
+		var pass = req.body.password;
+
+
+		Login.findOne({email: email}, function(err, result) {
+		  if(err){
+			console.log("err");
+			res.render('login.hbs',{
+				"failure_message": "Login Failed"
+			})
+		  }
+		  else if(result == null || !result) {
+			res.render('login.hbs',{
+				"failure_message": "Wrong User ID/ Password"
+			})
+		  }
+		  else if(result.password == pass){
+			// req.flash('username',email);
+			req.session.email = email;
+			if(result.type === "admin")
+			{
+				res.redirect('/home')
+			}
+			else
+			{
+				res.redirect('/userhome')
+			}
+		}
+
+		  else{
+			res.render('login.hbs',{
+				"failure_message": "Wrong User ID/ Password"
+			})
+		  }
+		});
+
+	 })
+
+
+ router.get('/home', (req, res) => {
 	
-	var data = {
+	var details = [{
+		"total_jobs":5,
+		"active_jobs":10,
+		"queued_jobs":15,
+		"failed_jobs":2
+	}]
+
+	var pie_data =	[{
+		label: "Active Edge Devices",
+		data: 12
+	}, {
+		label: "Inactive Edge Devices",
+		data: 30
+	}]
+
+
+	if(!req.session.email)
+	{
+		return res.redirect('/login');
 	}
-
+	else
+	{
 	res.render('index.hbs', {
-		"menuItems":[  
-			{  
-			   "subMenuName":"Payments",
-			   "shortCode":"PAY",
-			   "key":"primaryKey"
-			},
-			{  
-				"subMenuName":"Payments2",
-				"shortCode":"PAY",
-				"key":"primaryKey"
-			 }
-		 ],
-		morris: true
+		 "username":req.session.email.split("@")[0],
+		 "details":details,
+		 "pie_data":pie_data,
+		  morris: true,
+		  flot:true
 	});
+	}
 });
 
-router.get('/flot', (req, res) => {
-	res.render('flot.hbs', {
-		flot: true
-	});
-});
+router.get('/edgenodes',function(req,res){
+	if(!req.session.email){
+		return res.redirect('/login');
+	}
+	else
+	{
+		var data = [{
+			"device_name":"hello",
+			"memory":"256mb",
+			"cores":4
+		},
+		{
+			"device_name":"helloworld",
+			"memory":"512mb",
+			"cores":2
 
-router.get('/morris', (req, res) => {
-	res.render('morris.hbs', {
-		morris: true
-	});
-});
+		}]
+		res.render('edgenodes.hbs',{
+			"data":data,
+			morris:true
+		})
+	}
+})
 
-router.get('/tables', (req, res) => {
-	res.render('tables.hbs', {
-		tables: true
-	});
-});
-
-router.get('/forms', (req, res) => {
-	res.render('forms.hbs', {
-		morris: true
-	});
-});
-
-router.get('/panels-wells', (req, res) => {
-	res.render('forms.hbs', {
-		morris: true
-	});
-});
-
-router.get('/buttons', (req, res) => {
-	res.render('buttons.hbs', {
-		morris: true
-	});
-});
-
-router.get('/notifications', (req, res) => {
-	res.render('notifications.hbs', {
-		morris: true
-	});
-});
-
-router.get('/typography', (req, res) => {
-	res.render('typography.hbs', {
-		morris: true
-	});
-});
-
-router.get('/icons', (req, res) => {
-	res.render('icons.hbs', {
-		morris: true
-	});
-});
-
-router.get('/grid', (req, res) => {
-	res.render('grid.hbs', {
-		morris: true
-	});
-});
 
 router.get('/blank', (req, res) => {
 	res.render('blank.hbs', {
@@ -130,10 +168,50 @@ router.get('/blank', (req, res) => {
 	});
 });
 
-router.get('/login', (req, res) => {
-	res.render('login.hbs', {
-		morris: true
+router.get('/install', (req, res) => {
+	res.render('install.hbs', {
+		flot: true
 	});
+});
+
+router.get('/userhome', (req, res) => {
+
+	if(!req.session.email)
+	{
+		return res.redirect('/login');
+	}
+	else
+	{
+	res.render('userhome.hbs', {
+		 "username":req.session.email.split("@")[0],
+		  morris: true,
+		  flot:true
+	});
+	}
+ })
+
+ router.get('/userarchieve',(req,res) => {
+	if(!req.session.email)
+	{
+		return res.redirect('/login');
+	}
+	else
+	{
+		res.render('userarchieve.hbs',{
+			"morris":true
+			//send data here for past jobs
+		})
+	}
+ })
+
+router.get('/getsshfile', (req, res) => {
+	res.sendFile(__dirname + '/createuser.sh', (err) => {
+		if (err) {
+		 next(new Error('Error sending File!'));
+		} else {
+		 console.log('file sent!');
+		}
+	   })
 });
 
 router.post('/registerNode', (req,res) => {

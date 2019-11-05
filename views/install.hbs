@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{> head}}
+
+<body>
+
+<style> 
+  
+#Progress_Status { 
+  width: 50%; 
+  background-color: #ddd; 
+  margin-left: 200px;
+} 
+  
+#myprogressBar { 
+  width: 1%; 
+  height: 5px; 
+  background-color: #4CAF50; 
+  text-align: right; 
+  line-height: 32px; 
+  color: black; 
+  display: none;
+} 
+  
+</style> 
+
+  <div class="container">
+        <div class="row">
+            <br>
+                <div class="row">
+                    <div class="col-lg-12">
+
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                                    <h1 class="page-header">Installation Guide</h1>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            
+                            <div class="alert alert-info">
+                               <ul>
+                               <li> Download Script to create user: <a href="/getsshfile" class="alert-link"> Click Here</a></li>
+                               <li> Run command in the terminal : sudo chmod +x createuser.sh</li>
+                               <li> Run the script in terminal : sudo ./createuser.sh</li> 
+                               <li> Click<a href="/installAgent" onclick="update()" class="alert-link"> Here</a> to install the agent
+                               </li> 
+                               </ul>
+
+                               
+                            </div>
+
+                               <div id="Progress_Status" style="margin-left:25%;"> 
+                                    <p id="installagent" style="display:none">Installing-Agent</p>
+                                    <div id="myprogressBar" style="display:none;">0%</div> 
+                                </div>   
+                                <br>                        
+                        </div>
+
+                        
+
+                        <!-- .panel-body -->
+                    </div>
+                    <!-- /.col-lg-12 -->
+                </div>
+                <!-- /.row -->
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- /#page-wrapper -->
+
+    
+    <!-- /#wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+    {{> scripts}}
+    <script> 
+  
+function update() { 
+  var element = document.getElementById("myprogressBar");  
+  var element_text = document.getElementById("installagent");
+  element.style.display = "block";
+  element_text.style.display = "block";
+
+  var width = 1; 
+  var identity = setInterval(scene, 1000); 
+  function scene() { 
+    if (width >= 100) { 
+      clearInterval(identity); 
+    } else { 
+      width++;  
+      element.style.width = width + '%';  
+      element.innerHTML = width * 1  + '%'; 
+    } 
+  } 
+} 
+  
+</script> 
+    
+</body>
+
+</html>
