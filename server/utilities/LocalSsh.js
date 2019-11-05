@@ -24,8 +24,8 @@ class LocalSsh {
         return new Promise((resolve, reject) => {
             ssh.execCommand(command, { cwd })
                 .then(function(result) {
-                    if (result.stderr !== "")
-                        reject('STDERR: ' + result.stderr);
+                    // if (result.stderr !== "")
+                    //     reject('STDERR: ' + result.stderr);
                     resolve('STDOUT: ' + result.stdout);
                 })
         });

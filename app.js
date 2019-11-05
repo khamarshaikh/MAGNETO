@@ -16,7 +16,8 @@ hbs.registerPartials("./views/partials");
 
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost:27017/magneto');
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.urlencoded({
@@ -25,6 +26,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(express.static("./public"));
 app.use('/', web);
+
 
 
 

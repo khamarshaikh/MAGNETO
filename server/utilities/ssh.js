@@ -7,24 +7,29 @@ const ssh = new node_ssh();
 
 class Ssh {
 
-    constructor(host,username,privateKey){
-        this.conn = this.getConnection(host,username,privateKey);
-    }
+    // constructor(host,username,privateKey){
+    //     this.conn = this.getConnection(host,username,privateKey);
+    // }
 
-    getConnection(host,username,privateKey){
+    getConnection(host,username, privateKey){
         return ssh.connect({
             host,
             username,
             password: "Magneto@1234",
-            privateKey,
+            // privateKey,
 
         })
+    }
+
+    removeConnection(){
+        ssh.dispose();
     }
 
     executeCommand(command,cwd) {
         return new Promise((resolve, reject) => {
             ssh.execCommand(command, { cwd })
                 .then(function(result) {
+                    console.log(result);
                 if (result.stderr !== "")
                     reject('STDERR: ' + result.stderr);
                 resolve('STDOUT: ' + result.stdout);
@@ -63,9 +68,9 @@ class Ssh {
                 concurrency: 10,
                 tick: function(localPath, remotePath, error) {
                     if (error) {
-                        failed.push(localPath)
+                        reject(localPath);
                     } else {
-                        successful.push(localPath)
+                        resolve(localPath);
                     }
                 }
             }).then(function(status) {

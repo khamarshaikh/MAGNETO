@@ -23,6 +23,6 @@ if __name__ == '__main__':
     query = sys.argv[4]
     writePath = sys.argv[3]
     df = readParquet(readPath)
-    df = df.append(readParquet(readPath1))
+    #df = df.append(readParquet(readPath1))
     df = executeQuery(query, df)
-    writeOutput(writePath, df)
+    writeOutput(writePath, df.reset_index())

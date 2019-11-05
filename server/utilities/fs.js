@@ -5,15 +5,17 @@ class Fs{
 
     getFilesFromFolder(testFolder){
         let allfiles = [];
-        return new Promise((accepts,reject) => {
+        return new Promise((resolve,reject) => {
             fs.readdir(testFolder, (err, files) => {
-                if(err)reject("err");
+                if(err){
+                    console.log(err);
+                    reject("err");
+                }
                 else {
                     files.forEach(file => {
                         allfiles.push(file);
-                        console.log(file);
                     });
-                    accepts(allfiles);
+                    resolve(allfiles);
                 }
             });
         })

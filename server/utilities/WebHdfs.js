@@ -16,18 +16,27 @@ class WebHdfs {
     }
 
     getFolder(hdfsPath,lfsPath) {
-        let lfsStream = fs.createWriteStream(lfsPath);
-        let hdfsStream = this.hdfs.createReadStream(hdfsPath);
-        hdfsStream.pipe(lfsStream);
 
         return new Promise((resolve,reject) => {
-            remoteFileStream.on("error", function onError (err) {
-                reject(err);
+
+            this.hdfs.readdir(hdfsPath,(err,list) => {
+            list.forEach(file => {
+                let lfsStream = fs.createWriteStream(lfsPath + file.pathSuffix);
+                let hdfsStream = this.hdfs.createReadStream(hdfsPath + '/' + file.pathSuffix);
+                hdfsStream.pipe(lfsStream);
+
+                    hdfsStream.on("error", function onError (err) {
+                        console.log("error", err);
+                        reject(err);
+                    });
+                    hdfsStream.on("finish", function onFinish () {
+                        resolve("Upload is done");
+                    });
+                });
             });
-            remoteFileStream.on("finish", function onFinish () {
-                resolve("Upload is done");
-            });
+
         });
+
 
     }
 
