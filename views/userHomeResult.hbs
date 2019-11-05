@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{> head}}
+
+<body>
+
+<div id="wrapper">
+
+    {{> usernavbar}}
+
+    {{> usersidenav}}
+
+    <div id="page-wrapper">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">JOB</h1>
+
+
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+
+        <div class="panel panel-default ">
+            <div class="panel-heading">
+                Execute Job
+            </div>
+            <div class="panel-body">
+                <form role="form" action="/DistributeDataAndRunQuery" method="POST">
+                    <div class="form-group">
+                        <label>HDFS Host</label>
+                        <input class="form-control"  name="host" value="{{host}}" required>
+                        <p class="help-block"></p>
+                        <label>HDFS Port</label>
+                        <input class="form-control" name="port" value="{{port}}" required>
+                        <p class="help-block"></p>
+                        <label>HDFS Path</label>
+                        <input class="form-control" name="path" value="{{path}}" required>
+                        <p class="help-block"></p>
+                        <!--                                            <label>HDFS User</label>-->
+                        <!--                                            <input class="form-control" name="user" required>-->
+                        <p class="help-block"></p>
+                        <label>Map Query</label>
+                        <input class="form-control" name="mapQuery" value="{{mapQuery}}" required>
+                        <p class="help-block"></p>
+                        <label>Reduce Query</label>
+                        <input class="form-control" name="reduceQuery" value="{{reduceQuery}}" required>
+                        <p class="help-block"></p>
+
+                        <div class="form-group">
+                            <input  class="btn  btn-success center" type="submit" value="RUN JOB" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel panel-default " style="width: 1000px;height: 200px">
+            <h1>
+                RESULT
+            </h1>
+
+            <ul>
+                {{#each result}}
+                    <li>{{this}}</li>
+                {{/each}}
+            </ul>
+
+
+
+        </div>
+
+
+
+
+        <!-- /.row -->
+        <!-- /.row -->
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+
+{{!-- <script type="application/javascript"> --}}
+
+{{> scripts}}
+</body>
+
+</html>

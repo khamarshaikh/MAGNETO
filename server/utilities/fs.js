@@ -6,6 +6,7 @@ class Fs{
     getFilesFromFolder(testFolder){
         let allfiles = [];
         return new Promise((resolve,reject) => {
+            console.log("here")
             fs.readdir(testFolder, (err, files) => {
                 if(err){
                     console.log(err);

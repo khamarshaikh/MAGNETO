@@ -28,8 +28,8 @@
                                 <thead>
                                     <tr>
                                         <th>Device Name</th>
-                                        <th>Memory Availble</th>
-                                        <th>Condition</th>
+                                        <th>Total Memory</th>
+                                        <th>Memory Available</th>
                                         <th>No of Cores</th>
                                         {{!-- <th>CSS grade</th> --}}
                                     </tr>
@@ -38,8 +38,8 @@
                                 {{#data}}
                                     <tr class="odd gradeX">
                                         <td>{{device_name}}</td>
+                                        <td>{{totalMemory}}</td>
                                         <td>{{memory}}</td>
-                                        <td>{{cores}}</td>
                                         <td>{{cores}}</td>
                                     </tr>
                                 {{/data}}

@@ -14,7 +14,7 @@ def executeQuery(query,df):
 
 
 def writeOutput(path,df):
-    df.to_csv(path)
+    df.to_csv(path,index=False)
 
 
 if __name__ == '__main__':

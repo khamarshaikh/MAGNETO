@@ -26,7 +26,7 @@ class LocalSsh {
                 .then(function(result) {
                     // if (result.stderr !== "")
                     //     reject('STDERR: ' + result.stderr);
-                    resolve('STDOUT: ' + result.stdout);
+                    resolve(result.stdout);
                 })
         });
     }

@@ -143,6 +143,48 @@ router.get('/edgenodes',function(req,res){
 	}
 	else
 	{
+
+        let allNodes = [];
+        let allUSers = [];
+        let allConnections = [];
+        let sshInstances = [];
+        // const sshKeyIns = new sshKey();
+        // sshKeyIns.
+        sshKey.find({},(err,users) => {
+            users.forEach((user) => {
+                allUSers.push(user);
+                let sshInstance = new ssh();
+                allConnections.push(sshInstance.getConnection(user.host,user.username,user.privateKey));
+                sshInstances.push(sshInstance);
+            });
+            Promise.all(allConnections).then((connections) => {
+                sshInstances.forEach((sshInstance) => {
+
+                    allNodes.push(sshInstance.executeCommand("top -l 1 -s 0 | grep PhysMem"));
+
+                    Promise.all(allNodes).then((AllNodesRes) => {
+
+                        res.render('edgenodes.hbs',{
+                            "data": AllNodesRes.map((val,i) => {
+                                return {
+                                    device_name: allUSers[i].host,
+                                    totalMemory: "16Gb",
+                                    memory: val.split(",")[1],
+                                    cores: "6"
+                                }
+                            }),
+                            morris:true
+                        })
+                        // );
+                    });
+                });
+            });
+
+        });
+
+
+
+
 		var data = [{
 			"device_name":"hello",
 			"memory":"256mb",
@@ -154,10 +196,7 @@ router.get('/edgenodes',function(req,res){
 			"cores":2
 
 		}]
-		res.render('edgenodes.hbs',{
-			"data":data,
-			morris:true
-		})
+
 	}
 })
 
@@ -222,7 +261,7 @@ router.post('/registerNode', (req,res) => {
 			req.socket.remoteAddress ||
 			(req.connection.socket ? req.connection.socket.remoteAddress : null)).replace("::ffff:",""),
 		username: "magneto",
-		privateKey: body.key
+		privateKey: "body.key"
 	};
 	console.log(obj);
 	const sshKeyIns = new sshKey(obj);
@@ -232,29 +271,43 @@ router.post('/registerNode', (req,res) => {
 	});
 });
 
-router.post('/installAgent', (req,res) => {
+router.get('/installAgent', (req,res) => {
 	const body = req.body;
 	const host = (req.headers['x-forwarded-for'] ||
 		req.connection.remoteAddress ||
 		req.socket.remoteAddress ||
 		(req.connection.socket ? req.connection.socket.remoteAddress : null)).replace("::ffff:","");
-	const sshInstance = new ssh();
-	sshInstance.getConnection(host, "magneto","host.privateKey").then(() => {
-		sshInstance.executeCommand("mkdir /Users/magneto/Agent").then((resmkdir) => {
-			sshInstance.putDirectory("/Users/aniruaga/projects/magneto/Agent","/Users/magneto/Agent").then((resfile) => {
-				console.log(resfile);
-				sshInstance.executeCommand("python -m pip install -r requirements.txt --user --no-warn-script-location.","/Users/magneto/Agent").then((respip) => {
-					console.log(respip);
-					res.send("done");
-					sshInstance.removeConnection();
-				}).catch((err) => {
-					res.send(err);
-				});
-			}).catch((err) => {
-				res.send(err);
-			});
-		});
-	});
+
+    const obj = {
+        host,
+        username: "magneto",
+        privateKey: "body.key"
+    };
+
+    const sshKeyIns = new sshKey(obj);
+    sshKeyIns.save((err) => {
+        if(err)res.send(err);
+        const sshInstance = new ssh();
+        sshInstance.getConnection(host, "magneto","host.privateKey").then(() => {
+            sshInstance.executeCommand("mkdir /Users/magneto/Agent").then((resmkdir) => {
+                sshInstance.putDirectory("/Users/aniruaga/projects/magneto/Agent","/Users/magneto/Agent").then((resfile) => {
+                    console.log(resfile);
+                    sshInstance.executeCommand("python -m pip install -r requirements.txt --user --no-warn-script-location","/Users/magneto/Agent").then((respip) => {
+                        // console.log(respip);
+                        res.redirect("/login")
+                        // res.send("done");
+                        sshInstance.removeConnection();
+                    }).catch((err) => {
+
+                        res.redirect("/login")
+                    });
+                }).catch((err) => {
+                    res.send(err);
+                });
+            });
+        });
+    });
+
 });
 
 router.get('/getInfoFromAllNodes', (req,res) => {
@@ -300,8 +353,13 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 	let allUsers = [];
 	let allConnected = [];
 
+	console.log("ppppppp[[[[[[[]]]]]]]]]")
+
 	webHdfs.getFolder(body.path,localPath + "/").then((folderRes) => {
+
+	    console.log("here 11111");
 		fsUtil.getFilesFromFolder(localPath).then((files) => {
+
 			files = files.filter(file => file.includes("parquet"));
 			console.log(files);
 
@@ -354,7 +412,13 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 
 										centralHub.executeCommand("cat result.parquet",
 											"/Users/aniruaga/projects/magneto/temp").then((result) => {
-											res.send(result);
+
+
+                                            res.render('userHomeResult.hbs', Object.assign(body,{
+
+                                                result: result.split('\n')
+
+                                            }));
 										});
 									});
 
@@ -369,10 +433,22 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 			});
 		});
 	}).catch((err) => {
-
 	});
 
 
+
+
+
+
+});
+
+
+router.get('/signout', (req, res) => {
+    req.session.destroy(function(err) {
+        res.render('login.hbs', {
+            morris: true
+        });
+    })
 });
 
 module.exports = router;
