@@ -353,11 +353,11 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 	let allUsers = [];
 	let allConnected = [];
 
-	console.log("ppppppp[[[[[[[]]]]]]]]]")
+	console.log("Process Started !!!")
 
 	webHdfs.getFolder(body.path,localPath + "/").then((folderRes) => {
 
-	    console.log("here 11111");
+	    console.log("Data Collected From Data Lake !!!");
 		fsUtil.getFilesFromFolder(localPath).then((files) => {
 
 			files = files.filter(file => file.includes("parquet"));
@@ -374,14 +374,14 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 					});
 
 				Promise.all(allConnected).then(() => {
-					console.log("PPPPPPPPP");
+					// console.log("PPPPPPPPP");
 					const filesPut = AlluserSshInstance.map((sshInstance,i) => {
 						return sshInstance.putFile(filesPath + "/" + files[i],
 							"/Users/magneto/Agent/" + files[i]);
 					});
 					Promise.all(filesPut).then((fres) => {
 
-						console.log("!!!!!!!!!!!!!!!!!!")
+                        console.log("Files Transferred To Different Nodes !!!");
 
 						const mapExecuted = AlluserSshInstance.map((sshInstance, i) => {
 							console.log(files[i]);
@@ -394,27 +394,28 @@ router.post('/DistributeDataAndRunQuery', (req,res) => {
 						});
 
 						Promise.all(mapExecuted).then((mapser) => {
-							console.log("*********")
+                            console.log("Map Query Executed To Different Nodes !!!");
 							const getAllFiles = AlluserSshInstance.map((sshInstance,i) => {
 								sshInstance.getFile("/Users/magneto/Agent/out.parquet",
 									localPath + "/out" + i + ".parquet")
 							});
 
 							centralHub.executeCommand("python -m pip install -r requirements.txt --user --no-warn-script-location", "/Users/aniruaga/projects/magneto/Agent").then(() => {
-								console.log("dddddddddddddd");
+
 								Promise.all(getAllFiles).then(() => {
+                                    console.log("Map Query Result Collected From Different Nodes !!!");
 									centralHub.executeCommand("python agentReduce.py " +
 										localPath + "/out0.parquet " +
 										localPath + "/out1.parquet " +
 										localPath + "/result.parquet " +
 										'"' + body.reduceQuery + '"',
 										"/Users/aniruaga/projects/magneto/Agent/").then(() => {
-
+                                        console.log("Reduce Query Executed Collection Final Output !!!");
 										centralHub.executeCommand("cat result.parquet",
 											"/Users/aniruaga/projects/magneto/temp").then((result) => {
-
-
+                                            console.log("Result Sent to Screen !!!");
                                             res.render('userHomeResult.hbs', Object.assign(body,{
+
 
                                                 result: result.split('\n')
 

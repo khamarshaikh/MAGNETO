@@ -64,16 +64,20 @@ $(function() {
     Morris.Donut({
         element: 'morris-donut-chart',
         data: [{
-            label: "Download Sales",
-            value: 12
-        }, {
-            label: "In-Store Sales",
-            value: 30
-        }, {
-            label: "Mail-Order Sales",
-            value: 20
-        }],
-        resize: true
+            label: "Memory Used (%)",
+            value: 80
+
+        },
+            {
+                label: "Memory Available (%)",
+                value: 20
+
+            }],
+        resize: true,
+        colors: [
+            '#ff0000',
+            '#4EB66F'
+        ]
     });
 
     Morris.Bar({
